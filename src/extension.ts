@@ -90,13 +90,9 @@ export function activate(context: vscode.ExtensionContext) {
       const text = document.getText();
       let prevState = text;
 
-      let intervalId = null;
-
-      const rain = () => {
+      const intervalId = setInterval(() => {
         const nextStateText = nextState(prevState);
-
         if (nextStateText === prevState) {
-          return;
           clearInterval(intervalId);
         }
         prevState = nextStateText;
@@ -114,9 +110,9 @@ export function activate(context: vscode.ExtensionContext) {
           },
           { undoStopBefore: false, undoStopAfter: false }
         );
-      };
+      }, 50);
 
-      intervalId = setInterval(rain, 50);
+      // intervalId = setInterval(rain, 50);
     } else {
       vscode.window.showInformationMessage("No editor is active");
     }
