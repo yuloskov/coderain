@@ -2,6 +2,8 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from "vscode";
 
+const isEmpty = (str: string) => str.trim() === "";
+
 const textToGrid = (text: string) => {
   const lines = text.split("\n");
   const maxLineLength = Math.max(...lines.map((line) => line.length));
@@ -23,21 +25,21 @@ const nextState = (state: string) => {
     for (let j = 0; j < grid[i].length; j++) {
       const cell = grid[i][j];
 
-      const canMoveDown = i < numLines - 1 && grid[i + 1][j] === " ";
+      const canMoveDown = i < numLines - 1 && isEmpty(grid[i + 1][j]);
       const canMoveLeft =
-        j > 0 && i < numLines - 1 && grid[i + 1][j - 1] === " ";
+        j > 0 && i < numLines - 1 && isEmpty(grid[i + 1][j - 1]);
       const canMoveRight =
         j < grid[i].length - 1 &&
         i < numLines - 1 &&
-        grid[i + 1][j + 1] === " ";
+        isEmpty(grid[i + 1][j + 1]);
 
       const canMoveDown2cells =
-        i < numLines - 2 && grid[i + 2][j] === " " && grid[i + 1][j] === " ";
+        i < numLines - 2 && isEmpty(grid[i + 2][j]) && isEmpty(grid[i + 1][j]);
       const canMoveDown3cells =
         i < numLines - 3 &&
-        grid[i + 3][j] === " " &&
-        grid[i + 2][j] === " " &&
-        grid[i + 1][j] === " ";
+        isEmpty(grid[i + 3][j]) &&
+        isEmpty(grid[i + 2][j]) &&
+        isEmpty(grid[i + 1][j]);
 
       if (canMoveDown3cells) {
         grid[i][j] = " ";
