@@ -157,7 +157,7 @@ export function activate(context: vscode.ExtensionContext) {
           },
           { undoStopBefore: false, undoStopAfter: false }
         );
-      }, 50);
+      }, 20);
     } else {
       vscode.window.showInformationMessage("No editor is active");
     }
