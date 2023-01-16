@@ -1,5 +1,3 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
 import * as vscode from "vscode";
 
 const isEmpty = (str: string) => str.trim() === "";
@@ -17,60 +15,107 @@ const gridToText = (grid: string[][]) => {
   return lines.join("\n");
 };
 
+const updateCell = (
+  grid: string[][],
+  i: number,
+  j: number,
+  dx: number,
+  dy: number
+) => {
+  const cell = grid[i][j];
+
+  grid[i][j] = " ";
+  grid[i + dy][j + dx] = cell;
+};
+
+const canMoveLeft = (grid: string[][], i: number, j: number, steps: number) => {
+  if (j - steps < 0 || i + steps > grid.length - 1) {
+    return false;
+  }
+
+  for (let k = 1; k <= steps; k++) {
+    if (!isEmpty(grid[i + 1][j - k])) {
+      return false;
+    }
+  }
+
+  return true;
+};
+
+const canMoveRight = (
+  grid: string[][],
+  i: number,
+  j: number,
+  steps: number
+) => {
+  if (j + steps > grid[i].length - 1 || i + steps > grid.length - 1) {
+    return false;
+  }
+
+  for (let k = 1; k <= steps; k++) {
+    if (!isEmpty(grid[i + 1][j + k])) {
+      return false;
+    }
+  }
+
+  return true;
+};
+
+const canMoveDown = (grid: string[][], i: number, j: number, steps: number) => {
+  if (i + steps > grid.length - 1) {
+    return false;
+  }
+
+  for (let k = 1; k <= steps; k++) {
+    if (!isEmpty(grid[i + k][j])) {
+      return false;
+    }
+  }
+
+  return true;
+};
+
 const nextState = (state: string) => {
   const grid = textToGrid(state);
 
   const numLines = grid.length;
   for (let i = numLines - 1; i >= 0; i--) {
     for (let j = 0; j < grid[i].length; j++) {
-      const cell = grid[i][j];
-
-      const canMoveDown = i < numLines - 1 && isEmpty(grid[i + 1][j]);
-      const canMoveLeft =
-        j > 0 && i < numLines - 1 && isEmpty(grid[i + 1][j - 1]);
-      const canMoveRight =
-        j < grid[i].length - 1 &&
-        i < numLines - 1 &&
-        isEmpty(grid[i + 1][j + 1]);
-
-      const canMoveDown2cells =
-        i < numLines - 2 && isEmpty(grid[i + 2][j]) && isEmpty(grid[i + 1][j]);
-      const canMoveDown3cells =
-        i < numLines - 3 &&
-        isEmpty(grid[i + 3][j]) &&
-        isEmpty(grid[i + 2][j]) &&
-        isEmpty(grid[i + 1][j]);
-
-      if (canMoveDown3cells) {
-        grid[i][j] = " ";
-        grid[i + 3][j] = cell;
-      } else if (canMoveDown2cells) {
-        grid[i][j] = " ";
-        grid[i + 2][j] = cell;
-      } else if (canMoveDown) {
-        grid[i][j] = " ";
-        grid[i + 1][j] = cell;
-      } else if (canMoveLeft && canMoveRight) {
-        if (Math.random() > 0.5) {
-          // move left
-          grid[i][j] = " ";
-          grid[i + 1][j - 1] = cell;
-        } else {
-          // move right
-          grid[i][j] = " ";
-          grid[i + 1][j + 1] = cell;
+      for (let k = 3; k >= 1; k--) {
+        if (canMoveDown(grid, i, j, k)) {
+          updateCell(grid, i, j, 0, k);
+          continue;
         }
-      } else if (canMoveLeft) {
-        // move left
-        grid[i][j] = " ";
-        grid[i + 1][j - 1] = cell;
-      } else if (canMoveRight) {
-        // move right
-        grid[i][j] = " ";
-        grid[i + 1][j + 1] = cell;
+      }
+
+      for (let k = 3; k >= 1; k--) {
+        if (canMoveLeft(grid, i, j, k) && canMoveRight(grid, i, j, k)) {
+          if (Math.random() > 0.5) {
+            updateCell(grid, i, j, -k, 1);
+            continue;
+          } else {
+            updateCell(grid, i, j, k, 1);
+            continue;
+          }
+        }
+      }
+
+      for (let k = 3; k >= 1; k--) {
+        if (canMoveLeft(grid, i, j, k)) {
+          updateCell(grid, i, j, -k, 1);
+          continue;
+        }
+      }
+
+      for (let k = 3; k >= 1; k--) {
+        if (canMoveRight(grid, i, j, k)) {
+          updateCell(grid, i, j, k, 1);
+          continue;
+        }
       }
     }
   }
+
   return gridToText(grid);
 };
 
@@ -113,8 +158,6 @@ export function activate(context: vscode.ExtensionContext) {
           { undoStopBefore: false, undoStopAfter: false }
         );
       }, 50);
-
-      // intervalId = setInterval(rain, 50);
     } else {
       vscode.window.showInformationMessage("No editor is active");
     }
