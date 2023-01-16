@@ -3,7 +3,7 @@
   "publisher": "yuloskov",
   "displayName": "coderain",
   "description": "Make your code rain!",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/yuloskov/coderain"
